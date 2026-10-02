@@ -1,0 +1,324 @@
+/**
+ * @name        system24-fx (catppuccin mocha) — LibreWolf edition
+ * @description a tui-style, monospace, unrounded, LABELED-PANEL LibreWolf
+ *              chrome theme. Ported from the "system24" Vencord/Discord
+ *              theme (catppuccin mocha palette).
+ * @requires    userChrome.css enabled in about:config:
+ *              toolkit.legacyUserProfileCustomizations.stylesheets = true
+ * @location    <profile>/chrome/userChrome.css
+ * @font        JetBrains Mono (install it, or swap --font below)
+ * @icons       Icon-bearing elements (image, toolbarbutton icons, favicons,
+ *              checkboxes) are explicitly excluded from the font override so
+ *              they keep rendering natively instead of breaking like an
+ *              icon-font would.
+ * @vertical    LibreWolf ships Firefox's native vertical tabs. Enable via
+ *              right-click on the tab bar -> "Turn on Vertical Tabs", or
+ *              about:preferences#general -> Browser Layout. When on, tabs
+ *              live in #vertical-tabs (inside #sidebar-main), not
+ *              #TabsToolbar — both are styled below so switching modes
+ *              doesn't lose the panel/label treatment.
+ */
+
+/* ==========================================================================
+   1. PALETTE
+   ========================================================================== */
+:root {
+    --font: 'JetBrains Mono', monospace;
+
+    --text-0: var(--bg-3);
+    --text-1: hsl(226, 64%, 95%);
+    --text-2: #cdd6f4;
+    --text-3: #bac2de;
+    --text-4: #7f849c;
+    --text-5: #585b70;
+
+    --bg-1: #45475a;
+    --bg-2: #313244;
+    --bg-3: #181825;
+    --bg-4: #1e1e2e;
+    --hover: hsla(235, 15%, 53%, 0.1);
+    --active: hsla(235, 15%, 53%, 0.2);
+    --active-2: hsla(235, 15%, 53%, 0.3);
+
+    --accent-1: hsl(267deg, 84%, 86%);
+    --accent-2: hsl(267deg, 84%, 81%);
+    --accent-3: hsl(267deg, 84%, 81%);
+    --accent-4: hsl(267deg, 84%, 76%);
+    --accent-5: hsl(267deg, 84%, 71%);
+
+    --red-2: hsl(343deg, 81%, 75%);
+    --green-2: hsl(115deg, 54%, 76%);
+    --yellow-2: hsl(41deg, 86%, 83%);
+    --blue-2: hsl(199deg, 76%, 69%);
+
+    --border-light: var(--hover);
+    --border: var(--active);
+    --border-hover: var(--accent-2);
+    --border-thickness: 2px;
+    --gap: 10px;
+    --label-color: var(--text-5);
+    --label-font-weight: 500;
+    --label-font-size: 10px;
+
+    --lwt-accent-color: var(--bg-3) !important;
+    --toolbar-bgcolor: var(--bg-4) !important;
+    --toolbar-color: var(--text-3) !important;
+    --tab-selected-bgcolor: var(--bg-2) !important;
+    --toolbar-field-background-color: var(--bg-3) !important;
+    --toolbar-field-color: var(--text-2) !important;
+    --toolbar-field-border-color: var(--border) !important;
+    --toolbar-field-focus-border-color: var(--accent-2) !important;
+    --arrowpanel-background: var(--bg-4) !important;
+    --arrowpanel-color: var(--text-3) !important;
+    --arrowpanel-border-color: var(--border) !important;
+}
+
+/* font applies broadly... */
+* {
+    font-family: var(--font) !important;
+    letter-spacing: -0.02ch;
+    border-radius: 0 !important;
+}
+
+/* ...but icon-bearing elements opt back OUT of the font override so they
+   keep rendering their native icon (image/mask), never a glyph fallback */
+image,
+.toolbarbutton-icon,
+.tab-icon-image,
+.tab-throbber,
+.urlbar-icon,
+.identity-icon,
+.button-icon,
+checkbox, radio,
+menuitem > .menu-icon,
+svg, img {
+    font-family: revert !important;
+}
+
+/* ==========================================================================
+   2. OUTER FRAME
+   ========================================================================== */
+#navigator-toolbox {
+    background-color: var(--bg-3) !important;
+    padding: var(--gap) var(--gap) 0 var(--gap) !important;
+    border: none !important;
+}
+
+#browser {
+    background-color: var(--bg-3) !important;
+}
+
+/* ==========================================================================
+   3. PANEL + LABEL MIXIN
+   ========================================================================== */
+#navigator-toolbox #nav-bar,
+#navigator-toolbox #TabsToolbar,
+#navigator-toolbox #PersonalToolbar,
+#sidebar-box,
+.findbar-container {
+    position: relative !important;
+    background-color: var(--bg-4) !important;
+    border: var(--border-thickness) solid var(--border) !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+}
+
+#navigator-toolbox #nav-bar,
+#navigator-toolbox #PersonalToolbar,
+#sidebar-box,
+.findbar-container {
+    margin: 0 0 var(--gap) 0 !important;
+}
+
+/* Horizontal tab strip (used when Vertical Tabs is OFF). The doubled
+   selector below (#TabsToolbar#TabsToolbar) is a specificity bump —
+   the browser's own vertical-tabs stylesheet was winning over a plain
+   #TabsToolbar rule when both modes' CSS is loaded at once. */
+#navigator-toolbox #TabsToolbar#TabsToolbar {
+    margin: 0 0 var(--gap) 0 !important;
+    background-color: var(--bg-4) !important;
+    border: var(--border-thickness) solid var(--border) !important;
+}
+
+/* Native vertical tabs (Firefox/LibreWolf "Turn on Vertical Tabs"). When
+   enabled, tabs are reparented out of #TabsToolbar into #vertical-tabs,
+   which lives inside #sidebar-main — a completely different element, so
+   it needs its own panel + label rules rather than inheriting anything
+   from #TabsToolbar above. margin-top gives the floating label room to
+   render (it sits above the box via top:-8px) — without it, the label
+   gets clipped by the window's own top edge since this sidebar has no
+   ancestor padding the way #navigator-toolbox pads #TabsToolbar. */
+#sidebar-main {
+    overflow: visible !important;
+}
+
+#vertical-tabs {
+    position: relative !important;
+    background-color: var(--bg-4) !important;
+    border: var(--border-thickness) solid var(--border) !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+    margin: var(--gap) var(--gap) var(--gap) var(--gap) !important;
+    padding: var(--gap) 0 !important;
+}
+
+#nav-bar::before,
+#TabsToolbar::before,
+#vertical-tabs::before,
+#PersonalToolbar::before,
+#sidebar-box::before,
+.findbar-container::before {
+    position: absolute;
+    top: -8px;
+    left: 12px;
+    padding: 0 6px;
+    background-color: var(--bg-3);
+    color: var(--label-color);
+    font-size: var(--label-font-size);
+    font-weight: var(--label-font-weight);
+    letter-spacing: 0.08em;
+    line-height: 1;
+    text-transform: lowercase;
+    z-index: 100;
+    pointer-events: none;
+}
+
+#TabsToolbar::before      { content: 'tabs'; }
+#vertical-tabs::before    { content: 'tabs'; }
+#nav-bar::before          { content: 'nav'; }
+#PersonalToolbar::before  { content: 'bookmarks'; }
+#sidebar-box::before      { content: 'sidebar'; }
+.findbar-container::before{ content: 'find'; top: auto; bottom: -8px; }
+
+/* ==========================================================================
+   4. TAB BAR (works for both horizontal and vertical orientation, since
+      Firefox/Floorp reuse the same .tabbrowser-tab / .tab-background
+      classes either way — only the container's layout direction changes)
+   ========================================================================== */
+.tabbrowser-tab {
+    font-size: 12px !important;
+}
+
+.tab-background {
+    background-color: transparent !important;
+    border: none !important;
+}
+
+.tabbrowser-tab[visuallyselected="true"] .tab-background {
+    background-color: var(--bg-2) !important;
+    box-shadow: inset 3px 0 0 var(--accent-2) !important;
+}
+
+.tabbrowser-tab:hover:not([visuallyselected="true"]) .tab-background {
+    background-color: var(--hover) !important;
+}
+
+.tab-label {
+    color: var(--text-3) !important;
+}
+
+.tabbrowser-tab[visuallyselected="true"] .tab-label {
+    color: var(--text-2) !important;
+}
+
+.tab-background::before,
+.tab-background::after {
+    display: none !important;
+}
+
+#tabs-newtab-button {
+    color: var(--text-4) !important;
+}
+#tabs-newtab-button:hover {
+    background-color: var(--hover) !important;
+}
+
+/* ==========================================================================
+   5. URL BAR
+   ========================================================================== */
+#urlbar,
+#searchbar {
+    background-color: var(--bg-3) !important;
+    color: var(--text-2) !important;
+    border: 1px solid var(--border) !important;
+    box-shadow: none !important;
+}
+
+#urlbar[focused="true"],
+#searchbar:focus-within {
+    border-color: var(--accent-2) !important;
+    box-shadow: none !important;
+}
+
+.urlbarView-row[selected] {
+    background-color: var(--active) !important;
+}
+
+/* ==========================================================================
+   6. TOOLBAR BUTTONS
+   ========================================================================== */
+toolbarbutton {
+    color: var(--text-4) !important;
+}
+
+toolbarbutton:hover {
+    background-color: var(--hover) !important;
+    color: var(--text-2) !important;
+}
+
+toolbarbutton:active,
+toolbarbutton[open="true"] {
+    background-color: var(--active) !important;
+}
+
+toolbar {
+    border: none !important;
+}
+
+/* ==========================================================================
+   7. BOOKMARKS TOOLBAR
+   ========================================================================== */
+.bookmark-item {
+    color: var(--text-4) !important;
+}
+
+.bookmark-item:hover {
+    background-color: var(--hover) !important;
+    color: var(--text-2) !important;
+}
+
+/* ==========================================================================
+   8. POPUPS / MENUS
+   ========================================================================== */
+menupopup,
+panel {
+    background-color: var(--bg-4) !important;
+    color: var(--text-3) !important;
+    border: var(--border-thickness) solid var(--border) !important;
+}
+
+menuitem,
+.subviewbutton {
+    color: var(--text-3) !important;
+}
+
+menuitem:hover,
+.subviewbutton:hover {
+    background-color: var(--hover) !important;
+    color: var(--text-2) !important;
+}
+
+/* ==========================================================================
+   9. FINDBAR
+   ========================================================================== */
+.findbar-container {
+    color: var(--text-2) !important;
+}
+
+/* ==========================================================================
+   10. SCROLLBARS
+   ========================================================================== */
+* {
+    scrollbar-color: var(--text-5) var(--bg-3) !important;
+    scrollbar-width: thin !important;
+}
